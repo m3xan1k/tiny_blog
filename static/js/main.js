@@ -8,6 +8,9 @@ window.addEventListener('DOMContentLoaded', () => {
         .then((resp) => resp.json())
         .then((data) => {
             let content = '';
+            if (data.posts.length == 0) {
+                content += 'No posts yet...';
+            }
             data.posts.forEach(post => {
                 let post_content = `<div class="card col-4 mx-auto mb-5 p-5">
                     <h2>${post.title}</h2>

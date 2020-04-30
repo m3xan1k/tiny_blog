@@ -8,5 +8,9 @@
 <h6>{{ post.created_at }}</h6>
 <p>{{ post.body }}</p>
 
+<form action="/posts/delete/{{ post.id }}" method="post">
+    <input class="btn btn-danger" type="submit" value="Delete">
+</form>
+
 
 {% endblock content %}

@@ -1,33 +1,50 @@
 from datetime import date
+from typing import NamedTuple
 
 from tiny_web.api import Api
 
 
 app = Api()
 
-posts_list = [
-    {
-        'id': 1,
-        'title': 'Very first post',
-        'body': 'Hello everyone who visit first post',
-        'author': 'm3xan1k',
-        'created_at': date.today().isoformat()
-    },
-    {
-        'id': 2,
-        'title': 'Second post',
-        'body': 'Hello everyone who visit second post',
-        'author': 'm3xan1k',
-        'created_at': date.today().isoformat()
-    },
-    {
-        'id': 3,
-        'title': 'Third post',
-        'body': 'Hello everyone who visit third post',
-        'author': 'm3xan1k',
-        'created_at': date.today().isoformat()
-    },
-]
+
+class Post(NamedTuple):
+    id: int
+    title: str
+    body: str
+    author: str
+    created_at: date
+
+
+class PostBase:
+    _id = 0
+
+    def __init__(self):
+        self._posts = []
+
+    def all(self):
+        return [post._asdict() for post in self._posts]
+
+    def get(self, id: int):
+        for post in self._posts:
+            if post.id == id:
+                return post._asdict()
+        return None
+
+    def create(self, **kwargs):
+        self._id += 1
+        kwargs['id'] = self._id
+        kwargs['created_at'] = date.today().isoformat()
+        new_post = Post(**kwargs)
+        self._posts.append(new_post)
+        return new_post._asdict()
+
+    def delete(self, id):
+        for idx, post in enumerate(self._posts):
+            if post.id == id:
+                del self._posts[idx]
+
+
+db = PostBase()
 
 
 @app.route('/')
@@ -50,15 +67,38 @@ def blog(request, response):
 
 @app.route('/posts')
 def posts(request, response):
+    posts_list = db.all()
     response.json = {'posts': posts_list}
-    # response.json = {'hello': 'world'}
+    return response
+
+
+@app.route('/posts/new')
+class PostNewController:
+    def get(self, request, response):
+        response.html = app.template('blog/post_new.html')
+        return response
+
+    def post(self, request, response):
+        db.create(**request.POST)
+        response.html = app.template('blog/post_list.html')
+        return response
+
+
+@app.route('/posts/delete/{id}')
+def delete(request, response, id: str):
+    if not id.isnumeric():
+        return app.not_found(response)
+    db.delete(int(id))
+    response.html = app.template('blog/post_list.html')
     return response
 
 
 @app.route('/posts/{id}')
-def post(request, response, id: str):
+def get_detail(request, response, id: str):
     if not id.isnumeric():
-        app.not_found(response)
-    post = [post for post in posts_list if post['id'] == int(id)][0]
+        return app.not_found(response)
+    post = db.get(int(id))
+    if post is None:
+        return app.not_found(response)
     response.html = app.template('blog/post_detail.html', {'post': post})
     return response
