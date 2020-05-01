@@ -1,0 +1,3 @@
+-i https://pypi.org/simple
+gunicorn==20.0.4
+tiny-web==0.0.4
