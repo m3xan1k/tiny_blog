@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+{% if message %}
+<div class="alert alert-info">{{ message }}</div>
+{% endif %}
+<form action="/posts{% if post %}/{{ post.id }}{% endif %}" method="post">
+<div class="form-group">
+    <label for="title">Title</label>
+    <input type="text" class="form-control" name="title"
+        value="{% if post %}{{ post.title }}{% endif %}"
+    >
+</div>
+<div class="form-group">
+    <label for="body">Body</label>
+    <input type="text" class="form-control" name="body"
+        value="{% if post %}{{ post.body }}{% endif %}"
+    >
+</div>
+<div class="form-group">
+    <label for="author">Author</label>
+    <input type="text" class="form-control" name="author"
+        value="{% if post %}{{ post.author }}{% endif %}"
+    >
+</div>
+{% if post %}
+    <input type="hidden" name="_method" value="PUT">
+{% else %}
+{% endif %}
+<input type="submit" class="btn btn-success btn-outline">
+</form>
+{% endblock content %}
