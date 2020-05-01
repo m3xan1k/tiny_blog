@@ -2,7 +2,7 @@
 
 window.addEventListener('DOMContentLoaded', () => {
     const div = document.querySelector('#blog');
-    const url = 'http://localhost:8000/posts'
+    const url = '/posts'
 
     fetch(url)
         .then((resp) => resp.json())
